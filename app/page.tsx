@@ -4,7 +4,7 @@ import Booking from "@/components/Booking";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-brand-white">
+    <main className="min-h-screen bg-brand-white pt-20">
       <Navbar />
       <Hero />
       <Booking />

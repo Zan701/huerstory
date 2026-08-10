@@ -11,9 +11,10 @@ interface CalendarModalProps {
   onClose: () => void;
   selectedDate: Date | null;
   onSelect: (date: Date | undefined) => void;
+  bookedDates: string[];
 }
 
-export default function CalendarModal({ isOpen, onClose, selectedDate, onSelect }: CalendarModalProps) {
+export default function CalendarModal({ isOpen, onClose, selectedDate, onSelect, bookedDates }: CalendarModalProps) {
   
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -26,6 +27,10 @@ export default function CalendarModal({ isOpen, onClose, selectedDate, onSelect 
       document.body.style.overflow = "unset";
     };
   }, [isOpen]);
+
+  const bookedDateObjects = bookedDates.map(d => new Date(d));
+  // Adjust time to local midnight to avoid timezone issues with DayPicker
+  bookedDateObjects.forEach(d => d.setHours(0,0,0,0));
 
   return (
     <AnimatePresence>
@@ -66,13 +71,12 @@ export default function CalendarModal({ isOpen, onClose, selectedDate, onSelect 
                     onSelect(date);
                     if (date) onClose();
                   }}
-                  disabled={[{ before: new Date() }]} // Disable past dates
+                  disabled={[
+                    { before: new Date() },
+                    ...bookedDateObjects
+                  ]} // Disable past dates and booked dates
                   modifiers={{
-                    booked: [
-                      // Example mocked booked dates, you can replace this logic
-                      new Date(new Date().setDate(new Date().getDate() + 2)),
-                      new Date(new Date().setDate(new Date().getDate() + 5)),
-                    ]
+                    booked: bookedDateObjects
                   }}
                   modifiersStyles={{
                     booked: { textDecoration: 'line-through', color: '#f87171', opacity: 0.6 }

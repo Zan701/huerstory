@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Gem, Cake, Briefcase, Calendar, CheckCircle2 } from "lucide-react";
 import { startOfWeek, addDays, format, isSameDay } from "date-fns";
 import CalendarModal from "./CalendarModal";
+import BookingFormModal from "./BookingFormModal";
 
 type EventType = "Wedding" | "Engagement" | "Birthday" | "Corporate";
 
@@ -46,33 +47,76 @@ export default function Booking() {
   const [selectedEvent, setSelectedEvent] = useState<EventType | null>(null);
   const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  
+  const [bookedDates, setBookedDates] = useState<string[]>([]);
+  const [isLoadingDates, setIsLoadingDates] = useState(true);
+
+  // Fetch Live Schedule from Internal API (Hides Google Sheets URL)
+  useEffect(() => {
+    const fetchSchedule = async () => {
+      try {
+        const response = await fetch("/api/schedule");
+        const data = await response.json();
+        
+        if (data.booked) {
+          setBookedDates(data.booked);
+        }
+      } catch (error) {
+        console.error("Error fetching live schedule:", error);
+      } finally {
+        setIsLoadingDates(false);
+      }
+    };
+
+    // Fetch immediately on load
+    fetchSchedule();
+  }, []);
 
   // Generate current week schedule
   const today = new Date();
+  today.setHours(0,0,0,0);
   const startOfCurrentWeek = startOfWeek(today, { weekStartsOn: 1 }); // Starts on Monday
   
   const weekDays: DayAvailability[] = Array.from({ length: 7 }).map((_, index) => {
     const date = addDays(startOfCurrentWeek, index);
-    // Mock availability: Make weekends available, some weekdays booked
+    const dateStr = format(date, "yyyy-MM-dd");
+    
     let status: "available" | "booked" | "no-slot" = "available";
-    if (index === 1 || index === 4) status = "booked"; // Tue, Fri booked
-    if (index === 3) status = "no-slot"; // Thu no slot
+    
+    if (date < today) {
+      status = "no-slot"; // Past dates are no slot
+    } else if (bookedDates.includes(dateStr)) {
+      status = "booked"; // Booked on google sheets
+    }
     
     return { date, status };
   });
 
   return (
-    <section id="booking" className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      <div className="text-center mb-16 space-y-4">
+    <section id="booking" className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto scroll-mt-20">
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.6 }}
+        className="text-center mb-16 space-y-4"
+      >
         <p className="text-brand-navy/60 font-medium tracking-wide uppercase text-sm">
           Let's capture your story
         </p>
         <h2 className="font-accent text-5xl md:text-6xl text-brand-pink">
           Your date. Your moment. Your story.
         </h2>
-      </div>
+      </motion.div>
 
-      <div className="bg-white/40 backdrop-blur-sm border border-brand-pink/20 rounded-3xl p-6 md:p-10 shadow-sm max-w-3xl mx-auto space-y-12">
+      <motion.div 
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.8, delay: 0.2 }}
+        className="bg-white/40 backdrop-blur-sm border border-brand-pink/20 rounded-3xl p-6 md:p-10 shadow-sm max-w-3xl mx-auto space-y-12"
+      >
         
         {/* Step 1: Date Selection */}
         <div className="bg-brand-background rounded-3xl p-6 md:p-8 border border-brand-pink/10">
@@ -162,7 +206,7 @@ export default function Booking() {
             animate={{ opacity: 1, y: 0 }}
             className="pt-4 border-t border-brand-pink/10"
           >
-            <h3 className="text-center text-lg md:text-xl font-medium text-brand-navy mb-6">
+            <h3 className="text-center text-base md:text-lg font-medium text-brand-navy mb-6">
               What are we celebrating?
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -200,7 +244,7 @@ export default function Booking() {
               exit={{ opacity: 0, height: 0 }}
               className="pt-4 border-t border-brand-pink/10 overflow-hidden"
             >
-              <h3 className="text-center text-lg md:text-xl font-medium text-brand-navy mb-6">
+              <h3 className="text-center text-base md:text-lg font-medium text-brand-navy mb-6">
                 Choose your package
               </h3>
               
@@ -211,7 +255,10 @@ export default function Booking() {
                     <motion.div
                       key={pkg.id}
                       whileHover={{ y: -5 }}
-                      onClick={() => setSelectedPackage(pkg.id)}
+                      onClick={() => {
+                        setSelectedPackage(pkg.id);
+                        setIsFormOpen(true);
+                      }}
                       className={`relative cursor-pointer p-6 rounded-2xl border transition-all duration-300 ${
                         isSelected 
                           ? "border-brand-pink bg-white shadow-xl ring-2 ring-brand-pink/20" 
@@ -223,9 +270,9 @@ export default function Booking() {
                           <CheckCircle2 className="w-5 h-5" />
                         </div>
                       )}
-                      <h4 className="font-accent text-3xl text-brand-pink mb-1">{pkg.name}</h4>
-                      <p className="font-bold text-brand-navy mb-4">{pkg.price}</p>
-                      <ul className="space-y-2 text-sm text-brand-navy/80">
+                      <h4 className="font-accent text-2xl md:text-3xl text-brand-pink mb-1">{pkg.name}</h4>
+                      <p className="font-bold text-sm md:text-base text-brand-navy mb-4">{pkg.price}</p>
+                      <ul className="space-y-1.5 text-xs md:text-sm text-brand-navy/80">
                         {pkg.features.map((feature, i) => (
                           <li key={i} className="flex items-start gap-2">
                             <span className="text-brand-pink mt-0.5">•</span>
@@ -241,13 +288,20 @@ export default function Booking() {
           )}
         </AnimatePresence>
 
-      </div>
+      </motion.div>
 
       <CalendarModal 
         isOpen={isCalendarOpen} 
         onClose={() => setIsCalendarOpen(false)} 
         selectedDate={selectedDate} 
         onSelect={setSelectedDate} 
+        bookedDates={bookedDates}
+      />
+
+      <BookingFormModal 
+        isOpen={isFormOpen} 
+        onClose={() => setIsFormOpen(false)} 
+        bookingData={{ date: selectedDate, event: selectedEvent, packageId: selectedPackage }} 
       />
     </section>
   );

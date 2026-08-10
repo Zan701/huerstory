@@ -16,14 +16,14 @@ export default function Hero() {
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="space-y-8"
         >
-          <h2 className="font-accent text-5xl md:text-7xl text-brand-navy mb-4">
+          <h2 className="font-accent text-4xl md:text-6xl text-brand-navy mb-3">
             You Live The Moment,
           </h2>
-          <h1 className="text-5xl md:text-7xl font-bold text-brand-pink tracking-tight leading-tight">
+          <h1 className="text-4xl md:text-6xl font-bold text-brand-pink tracking-tight leading-tight">
             We Capture The Story.
           </h1>
           
-          <p className="max-w-2xl mx-auto text-lg md:text-xl text-brand-navy/80 mt-6">
+          <p className="max-w-2xl mx-auto text-base md:text-lg text-brand-navy/80 mt-5">
             Elevate your special moments with professional event content creation. 
             We deliver raw, authentic, and ready-to-post memories for your social media.
           </p>
@@ -31,7 +31,7 @@ export default function Hero() {
           <div className="pt-8">
             <Link 
               href="#booking"
-              className="inline-block bg-brand-pink text-brand-navy px-8 py-4 rounded-full text-lg font-semibold hover:bg-brand-pink/90 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              className="inline-block bg-brand-pink text-brand-navy px-6 py-3 rounded-full text-base font-semibold hover:bg-brand-pink/90 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1"
             >
               Start Your Booking
             </Link>

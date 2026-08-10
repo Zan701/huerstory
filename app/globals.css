@@ -12,7 +12,16 @@
   --font-accent: var(--font-tangerine), cursive;
 }
 
+/* Hide Next.js Development Indicators */
+nextjs-portal {
+  display: none !important;
+}
+[data-nextjs-toast] {
+  display: none !important;
+}
+
 body {
-  background-color: var(--color-background);
-  color: var(--color-brand-navy);
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
 }
