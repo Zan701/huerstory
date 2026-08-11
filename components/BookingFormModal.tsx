@@ -61,7 +61,7 @@ Looking forward to hearing from you!`;
 
   const handleWhatsApp = () => {
     const message = encodeURIComponent(generateMessage());
-    const whatsappNumber = "6281234567890"; // Ganti dengan nomor asli nanti
+    const whatsappNumber = "62881080279794"; // Ganti dengan nomor asli nanti
     window.open(`https://wa.me/${whatsappNumber}?text=${message}`, "_blank");
   };
 

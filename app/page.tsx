@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import Booking from "@/components/Booking";
+import Footer from "@/components/Footer";
 
 export default function Home() {
   return (
@@ -17,8 +18,8 @@ export default function Home() {
         <Testimonials />
         <FAQ />
         <FinalCTA />
-        <Footer />
       */}
+      <Footer />
     </main>
   );
 }

@@ -2,8 +2,52 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useEffect, useRef } from "react";
 
 export default function Hero() {
+  const textRef = useRef<HTMLHeadingElement>(null);
+  const splitterRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (!textRef.current) return;
+
+    // Dynamic import to avoid SSR issues (animejs needs DOM)
+    const initAnimation = async () => {
+      const { splitText, createTimeline, stagger } = await import('animejs');
+
+      // Use addEffect pattern - this is the idiomatic animejs v4 way
+      // The effect function receives the splitter instance and runs after each split/re-split
+      const splitter = splitText(textRef.current!, {
+        words: { wrap: 'clip' },
+        chars: true,
+      });
+
+      splitter.addEffect((self: any) => {
+        const tl = createTimeline({
+          defaults: { ease: 'inOut(1)', duration: 450 }
+        });
+
+        tl.add(self.words, {
+          y: [($el: any) => +$el.dataset.line % 2 ? '100%' : '-100%', '0%'],
+        }, stagger(125));
+
+        return tl;
+      });
+
+      splitterRef.current = splitter;
+    };
+
+    initAnimation();
+
+    return () => {
+      // revert() disconnects ResizeObserver, reverts DOM, and cleans up effect animations
+      if (splitterRef.current) {
+        splitterRef.current.revert();
+        splitterRef.current = null;
+      }
+    };
+  }, []);
+
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-brand-white">
       {/* Decorative background circle */}
@@ -19,7 +63,8 @@ export default function Hero() {
           <h2 className="font-accent text-4xl md:text-6xl text-brand-navy mb-3">
             You Live The Moment,
           </h2>
-          <h1 className="text-4xl md:text-6xl font-bold text-brand-pink tracking-tight leading-tight">
+          
+          <h1 ref={textRef} className="text-4xl md:text-6xl font-bold text-brand-pink tracking-tight leading-tight">
             We Capture The Story.
           </h1>
           
@@ -41,3 +86,4 @@ export default function Hero() {
     </section>
   );
 }
+
