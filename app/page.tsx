@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import Booking from "@/components/Booking";
+import Gallery from "@/components/Gallery";
 import Footer from "@/components/Footer";
 
 export default function Home() {
@@ -9,6 +10,7 @@ export default function Home() {
       <Navbar />
       <Hero />
       <Booking />
+      <Gallery />
       {/* 
         TODO: Add remaining sections
         <Benefits />
